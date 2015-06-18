@@ -68,11 +68,16 @@ public class BTConnectFragment extends Fragment {
         list.setLayoutManager(new LinearLayoutManager(getActivity()));
         progressBar.setVisibility(View.VISIBLE);
         scanner = new BluetoothScanner();
-        scanner.scanLE(getActivity(), new ScanFinishListener() {
+        scanner.scanLE(getActivity(), new BluetoothScanner.ScanFinishListener() {
             @Override
             public void onScanFinished(BluetoothScanner scanner) {
                 progressBar.setVisibility(View.GONE);
                 initAdapter(scanner.getDevices());
+            }
+
+            @Override
+            public void onScanResult(BluetoothScanner scanner, BluetoothDevice device, int rssi) {
+                //TODO: ANDROID IMPL
             }
         });
 
@@ -90,12 +95,6 @@ public class BTConnectFragment extends Fragment {
         Log.v(TAG, "initAdapter called with device count=" + devices.size());
         RecyclerView.Adapter adapter = new BTListAdapter(devices);
         list.setAdapter(adapter);
-    }
-
-    // //////////////////////
-    // Inner and Anonymous Classes
-    public interface ScanFinishListener {
-        public void onScanFinished(BluetoothScanner scanner);
     }
 
 }

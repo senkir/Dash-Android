@@ -5,17 +5,12 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.le.BluetoothLeScanner;
 import android.bluetooth.le.ScanCallback;
 import android.bluetooth.le.ScanResult;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.v4.util.ArrayMap;
 import android.support.v4.util.SimpleArrayMap;
 import android.util.Log;
-import android.widget.Toast;
-import com.enyeinteractive.dashport.BTConnectFragment;
 
 import java.util.List;
 
@@ -34,7 +29,7 @@ public class BluetoothScanner {
     // Fields
 
     private boolean scanning;
-    private BTConnectFragment.ScanFinishListener listener;
+    private ScanFinishListener listener;
 
     private ArrayMap<BluetoothDevice, Integer> devices = new ArrayMap<>();
     private Handler handler;
@@ -55,7 +50,7 @@ public class BluetoothScanner {
     // //////////////////////
     // Methods
 
-    public void scanLE(@NonNull Context context, @NonNull final BTConnectFragment.ScanFinishListener listener) {
+    public void scanLE(@NonNull Context context, @NonNull final ScanFinishListener listener) {
         BluetoothLeScanner leScanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
         final DashScanCallback callback = new DashScanCallback();
         leScanner.startScan(callback);
@@ -70,7 +65,14 @@ public class BluetoothScanner {
         }, 10000);
     }
 
-    private static class DashScanCallback extends ScanCallback {
+    // //////////////////////
+    // Inner and Anonymous Classes
+    public interface ScanFinishListener {
+        public void onScanFinished(BluetoothScanner scanner);
+        public void onScanResult(BluetoothScanner scanner, BluetoothDevice device, int rssi);
+    }
+
+    private class DashScanCallback extends ScanCallback {
         private ArrayMap<BluetoothDevice, Integer> devices = new ArrayMap<>();
 
         @Override
@@ -78,9 +80,10 @@ public class BluetoothScanner {
             super.onScanResult(callbackType, result);
             BluetoothDevice device = result.getDevice();
             if (device.getName() == null || !device.getName().contains("Dash")) return;
-            devices.put(device, result.getRssi());
             Log.v(TAG, String.format("found device. address[%s] name[%s] type[%s] rssi[%s]",
                     device.getAddress(), device.getName(), device.getType(), result.getRssi()));
+            devices.put(device, result.getRssi());
+            listener.onScanResult(BluetoothScanner.this, device, result.getRssi());
         }
 
         @Override
