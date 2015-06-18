@@ -8,6 +8,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.TextView;
 import butterknife.ButterKnife;
+import butterknife.InjectView;
 import com.enyeinteractive.dashport.R;
 
 import java.util.ArrayList;
@@ -40,7 +41,7 @@ public class BTListAdapter extends RecyclerView.Adapter<BTListAdapter.ViewHolder
     public void onBindViewHolder(BTListAdapter.ViewHolder holder, int position) {
         BluetoothDevice device = devices.get(position);
         holder.title.setText(device.getName());
-        holder.rssi.setText(rssiValues.get(position));
+        holder.rssi.setText(String.valueOf(rssiValues.get(position)));
     }
 
     @Override
@@ -49,7 +50,9 @@ public class BTListAdapter extends RecyclerView.Adapter<BTListAdapter.ViewHolder
     }
 
     protected static class ViewHolder extends RecyclerView.ViewHolder {
+        @InjectView(R.id.title)
         TextView title;
+        @InjectView(R.id.rssi)
         TextView rssi;
 
         public ViewHolder(View itemView) {
