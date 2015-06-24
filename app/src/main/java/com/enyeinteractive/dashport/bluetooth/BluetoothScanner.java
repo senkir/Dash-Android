@@ -50,11 +50,12 @@ public class BluetoothScanner {
     // //////////////////////
     // Methods
 
-    public void scanLE(@NonNull Context context, @NonNull final ScanFinishListener listener) {
+    public void scanLE(@NonNull final ScanFinishListener listener) {
         BluetoothLeScanner leScanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
         final DashScanCallback callback = new DashScanCallback();
         leScanner.startScan(callback);
         handler = new Handler();
+        this.listener = listener;
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {

@@ -2,6 +2,7 @@ package com.enyeinteractive.dashport;
 
 
 import android.bluetooth.BluetoothDevice;
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
@@ -16,6 +17,7 @@ import android.widget.ProgressBar;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.enyeinteractive.dashport.bluetooth.BluetoothScanner;
+import com.enyeinteractive.dashport.bluetooth.DashController;
 import com.enyeinteractive.dashport.bluetooth.adapter.BTListAdapter;
 
 /**
@@ -41,7 +43,7 @@ public class BTConnectFragment extends Fragment {
     RecyclerView list;
 
     @InjectView(R.id.progress_spinner)
-    ProgressBar progressBar;
+    View progressBar;
 
     private BluetoothScanner scanner;
 
@@ -68,7 +70,7 @@ public class BTConnectFragment extends Fragment {
         list.setLayoutManager(new LinearLayoutManager(getActivity()));
         progressBar.setVisibility(View.VISIBLE);
         scanner = new BluetoothScanner();
-        scanner.scanLE(getActivity(), new BluetoothScanner.ScanFinishListener() {
+        scanner.scanLE(new BluetoothScanner.ScanFinishListener() {
             @Override
             public void onScanFinished(BluetoothScanner scanner) {
                 progressBar.setVisibility(View.GONE);
@@ -91,9 +93,18 @@ public class BTConnectFragment extends Fragment {
 
     // //////////////////////
     // Methods
-    public void initAdapter(ArrayMap<BluetoothDevice, Integer> devices) {
+    public void initAdapter(final ArrayMap<BluetoothDevice, Integer> devices) {
         Log.v(TAG, "initAdapter called with device count=" + devices.size());
-        RecyclerView.Adapter adapter = new BTListAdapter(devices);
+        RecyclerView.Adapter adapter = new BTListAdapter(devices, new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                int position = (int) view.getTag();
+                BluetoothDevice device = devices.keyAt(position);
+                Intent intent = new Intent(getActivity(), DriveActivity.class);
+                intent.putExtra("device", device);
+                startActivity(intent);
+            }
+        });
         list.setAdapter(adapter);
     }
 

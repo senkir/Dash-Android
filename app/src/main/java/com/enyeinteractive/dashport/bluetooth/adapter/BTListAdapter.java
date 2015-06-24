@@ -23,18 +23,20 @@ public class BTListAdapter extends RecyclerView.Adapter<BTListAdapter.ViewHolder
 
     List<Integer> rssiValues;
     List<BluetoothDevice> devices;
+    View.OnClickListener listener;
 
-    public BTListAdapter(ArrayMap<BluetoothDevice, Integer> data) {
+    public BTListAdapter(ArrayMap<BluetoothDevice, Integer> data, View.OnClickListener listener) {
         rssiValues = new ArrayList<>();
         devices = new ArrayList<>();
         devices.addAll(data.keySet());
         rssiValues.addAll(data.values());
+        this.listener = listener;
     }
 
     @Override
     public BTListAdapter.ViewHolder onCreateViewHolder(ViewGroup parent, int viewType) {
         View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.list_item_bt_device, parent, false);
-        return new ViewHolder(view);
+        return new ViewHolder(view, listener);
     }
 
     @Override
@@ -42,6 +44,8 @@ public class BTListAdapter extends RecyclerView.Adapter<BTListAdapter.ViewHolder
         BluetoothDevice device = devices.get(position);
         holder.title.setText(device.getName());
         holder.rssi.setText(String.valueOf(rssiValues.get(position)));
+        View parent = (View) holder.title.getParent();
+        parent.setTag(position);
     }
 
     @Override
@@ -55,9 +59,10 @@ public class BTListAdapter extends RecyclerView.Adapter<BTListAdapter.ViewHolder
         @InjectView(R.id.rssi)
         TextView rssi;
 
-        public ViewHolder(View itemView) {
+        public ViewHolder(View itemView, View.OnClickListener listener) {
             super(itemView);
             ButterKnife.inject(this, itemView);
+            itemView.setOnClickListener(listener);
         }
     }
 }
