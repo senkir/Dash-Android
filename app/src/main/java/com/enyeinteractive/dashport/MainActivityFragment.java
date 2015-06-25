@@ -7,7 +7,10 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.SeekBar;
 import butterknife.ButterKnife;
+import butterknife.InjectView;
+import butterknife.OnClick;
 import com.enyeinteractive.dashport.bluetooth.DashController;
 
 
@@ -25,6 +28,12 @@ public class MainActivityFragment extends Fragment {
     private BluetoothDevice bluetoothDevice;
     private DashController ctrl;
 
+    @InjectView(R.id.seek_left)
+    public SeekBar seekLeft;
+
+    @InjectView(R.id.seek_right)
+    public SeekBar seekRight;
+
     // //////////////////////
     // Constructors
 
@@ -40,8 +49,8 @@ public class MainActivityFragment extends Fragment {
 
     private void initDevice(BluetoothDevice bluetoothDevice) {
 
-
     }
+
     // //////////////////////
     // Methods from SuperClass/Interfaces
 
@@ -57,8 +66,43 @@ public class MainActivityFragment extends Fragment {
     public void onViewCreated(View view, Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         ButterKnife.inject(this, view);
+        seekLeft.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int i, boolean b) {
+                if (b) {
+                    ctrl.setThrottleLeft(i);
+                }
+            }
 
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //TODO: ANDROID IMPL
+            }
 
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                //TODO: ANDROID IMPL
+            }
+        });
+
+        seekRight.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
+            @Override
+            public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+                if (fromUser) {
+                    ctrl.setThrottleRight(progress);
+                }
+            }
+
+            @Override
+            public void onStartTrackingTouch(SeekBar seekBar) {
+                //TODO: ANDROID IMPL
+            }
+
+            @Override
+            public void onStopTrackingTouch(SeekBar seekBar) {
+                //TODO: ANDROID IMPL
+            }
+        });
     }
 
     @Override
@@ -82,6 +126,10 @@ public class MainActivityFragment extends Fragment {
     // //////////////////////
     // Methods
 
+    @OnClick(R.id.action_stop)
+    public void stopAllActions(View view) {
+        ctrl.reset();
+    }
     // //////////////////////
     // Inner and Anonymous Classes
 

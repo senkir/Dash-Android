@@ -28,6 +28,7 @@
             android:layout_height="wrap_content"/>
     <SeekBar
             android:id="@+id/seek_left"
+            android:max="255"
             android:layout_width="match_parent" android:layout_height="wrap_content"/>
 
     <TextView
@@ -36,5 +37,10 @@
             android:layout_height="wrap_content"/>
     <SeekBar
             android:id="@+id/seek_right"
+            android:max="255"
             android:layout_width="match_parent" android:layout_height="wrap_content"/>
+    <Button
+            android:id="@+id/action_stop"
+            android:text="stop"
+            android:layout_width="wrap_content" android:layout_height="wrap_content"/>
 </LinearLayout>

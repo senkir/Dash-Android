@@ -87,10 +87,10 @@ public class BluetoothCommandManager {
 
     public void run(CommandWrapper<?> command) {
         commands.add(command);
-        if (currentCommand == null) executeNext();
+        if (currentCommand == null && ready) executeNext();
     }
 
-    public boolean executeNext() {
+    public synchronized boolean executeNext() {
         /**
          * http://stackoverflow.com/questions/17910322/android-ble-api-gatt-notification-not-received
          * write desc characteristics must come
@@ -107,7 +107,7 @@ public class BluetoothCommandManager {
     }
 
     private void onFinish() {
-
+        //disconnect
     }
 
     public void disconnect() {
@@ -126,7 +126,7 @@ public class BluetoothCommandManager {
     }
 
     public interface OnReadyListener {
-        public void onReady(BluetoothCommandManager cmd);
+        void onReady(BluetoothCommandManager cmd);
     }
 
     private class InternalCallback extends BluetoothGattCallback {
@@ -150,14 +150,15 @@ public class BluetoothCommandManager {
         public void onServicesDiscovered(BluetoothGatt gatt, int status) {
             super.onServicesDiscovered(gatt, status);
             ready = true;
+            if (status != BluetoothGatt.GATT_SUCCESS) return;
             if (currentCommand != null) {
                 Log.w(TAG, "onServicesDiscovered: current command not null. cmd=" + currentCommand);
             }
-            currentCommand = null;
-            if (onReadyListener != null) onReadyListener.onReady(BluetoothCommandManager.this);
-//            if (BluetoothGatt.GATT_SUCCESS == status) {
-//                executeNext();
-//            }
+            if (onReadyListener != null) {
+                onReadyListener.onReady(BluetoothCommandManager.this);
+                onReadyListener = null;
+                executeNext();
+            }
         }
 
         @Override

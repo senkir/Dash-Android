@@ -24,6 +24,7 @@ public class BluetoothScanner {
     // //////////////////////
     // Constants
 
+    public static final boolean DEBUG = true;
     private static final String TAG = BluetoothScanner.class.getSimpleName();
     // //////////////////////
     // Fields
@@ -33,6 +34,7 @@ public class BluetoothScanner {
 
     private ArrayMap<BluetoothDevice, Integer> devices = new ArrayMap<>();
     private Handler handler;
+    private Runnable finish;
     // //////////////////////
     // Constructors
 
@@ -56,14 +58,15 @@ public class BluetoothScanner {
         leScanner.startScan(callback);
         handler = new Handler();
         this.listener = listener;
-        handler.postDelayed(new Runnable() {
+        finish = new Runnable() {
             @Override
             public void run() {
                 BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner().stopScan(callback);
                 devices.putAll((SimpleArrayMap<? extends BluetoothDevice, ? extends Integer>) callback.devices);
                 listener.onScanFinished(BluetoothScanner.this);
             }
-        }, 10000);
+        };
+        handler.postDelayed(finish, 10000);
     }
 
     // //////////////////////
@@ -85,6 +88,10 @@ public class BluetoothScanner {
                     device.getAddress(), device.getName(), device.getType(), result.getRssi()));
             devices.put(device, result.getRssi());
             listener.onScanResult(BluetoothScanner.this, device, result.getRssi());
+            if (DEBUG) {
+                handler.removeCallbacks(finish);
+                finish.run();
+            }
         }
 
         @Override

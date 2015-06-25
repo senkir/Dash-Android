@@ -53,6 +53,8 @@ public class DashController implements BluetoothCommandManager.CommandCallback {
     private final UUID notifyServicesUUID;
     private BluetoothGattCharacteristic notifyCharacteristic;
     private BluetoothGattCharacteristic writeWithoutResponseCharacteristic;
+    private int leftThrottle;
+    private int rightThrottle;
 
     @IntDef({TYPE_NAME, TYPE_SIGNALS, TYPE_RUN_AUTOCOMPLETE})
     @interface MessageTypes{}
@@ -99,7 +101,7 @@ public class DashController implements BluetoothCommandManager.CommandCallback {
         biscuitUUID = UUID.fromString(DashProtocolProperties.BISCUIT_SERVICE_UUID);
         writeWithoutNotifyUUID = UUID.fromString(DashProtocolProperties
                 .WRITE_WITHOUT_RESPONSE_CAHR_UUID);
-        notifyServicesUUID = UUID.fromString(DashProtocolProperties.READ_1_CHARACTERISTIC_UUID);
+        notifyServicesUUID = UUID.fromString(DashProtocolProperties.NOTIFY_CHARACTERISTIC);
         BluetoothCommandManager.getInstance().connect(device, context, this);
         BluetoothCommandManager.getInstance().setOnReadyListener(new BluetoothCommandManager.OnReadyListener() {
             @Override
@@ -107,48 +109,44 @@ public class DashController implements BluetoothCommandManager.CommandCallback {
                 //grab services we care about
                 BluetoothGatt gatt = cmd.getGatt();
                 //iterate through services
-                for (BluetoothGattService service : gatt.getServices()) {
-                    if (service.getUuid() == biscuitUUID) {
-                        //process
-                        roboService = service;
-                        writeWithoutResponseCharacteristic = service
-                                .getCharacteristic(writeWithoutNotifyUUID);
-                        BluetoothCommandManager.getInstance().run(new BluetoothCommandManager
-                                .WriteCharacteristic(100) {
+                roboService = gatt.getService(biscuitUUID);
+                //process
+                writeWithoutResponseCharacteristic = roboService.getCharacteristic(writeWithoutNotifyUUID);
+                if (writeWithoutResponseCharacteristic == null) return;
+                BluetoothCommandManager.getInstance().run(new BluetoothCommandManager
+                        .WriteCharacteristic(100) {
 
 
-                            @Override
-                            protected BluetoothGattCharacteristic getObject(BluetoothGatt gatt) {
-                                if (writeWithoutResponseCharacteristic != null) {
-                                    //data packet size is 14 bytes
-                                    /**
-                                     * request signal no notifications
-                                     */
-                                    byte command = TYPE_REQUEST_SIGNALS;
-                                    byte[] data = new byte[16];
-                                    data[15] = (byte)(data[15] & command);
-                                    writeWithoutResponseCharacteristic.setValue(data);
-                                }
-                                return writeWithoutResponseCharacteristic;
-                            }
-                        });
-                    }
-                    notifyCharacteristic = service
-                            .getCharacteristic(notifyServicesUUID);
-                    BluetoothCommandManager.getInstance().run(new BluetoothCommandManager.WriteDescriptor(200) {
-
-                        @Override
-                        protected BluetoothGattDescriptor getObject(BluetoothGatt gatt) {
-                            //enable notifications
-                            gatt.setCharacteristicNotification(notifyCharacteristic, true);
-                            BluetoothGattDescriptor descriptor = notifyCharacteristic.getDescriptors().get(0);
-                            descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
-                            return descriptor;
+                    @Override
+                    protected BluetoothGattCharacteristic getObject(BluetoothGatt gatt) {
+                        if (writeWithoutResponseCharacteristic != null) {
+                            //data packet size is 14 bytes
+                            /**
+                             * request signal no notifications
+                             */
+                            byte command = TYPE_REQUEST_SIGNALS;
+                            byte[] data = new byte[16];
+                            data[15] = command;
+//                            byte[] data = new byte[14];
+//                            data[0] = command;
+                            writeWithoutResponseCharacteristic.setValue(data);
                         }
-                    });
-                }
+                        return writeWithoutResponseCharacteristic;
+                    }
+                });
+                notifyCharacteristic = roboService.getCharacteristic(notifyServicesUUID);
+                if (notifyCharacteristic == null) return;
+                BluetoothCommandManager.getInstance().run(new BluetoothCommandManager.WriteDescriptor(200) {
 
-
+                    @Override
+                    protected BluetoothGattDescriptor getObject(BluetoothGatt gatt) {
+                        //enable notifications
+                        gatt.setCharacteristicNotification(notifyCharacteristic, true);
+                        BluetoothGattDescriptor descriptor = notifyCharacteristic.getDescriptors().get(0);
+                        descriptor.setValue(BluetoothGattDescriptor.ENABLE_NOTIFICATION_VALUE);
+                        return descriptor;
+                    }
+                });
             }
         });
     }
@@ -161,18 +159,21 @@ public class DashController implements BluetoothCommandManager.CommandCallback {
     @Override
     public void onPostExecute(BluetoothCommandManager cmd, BluetoothGatt gatt, @BluetoothCommandManager.Type int type, Object result, long id) {
 
-        if (id == ID_NOTIFY) {
-            Log.v(TAG, "onPostExecute returned with object " + result);
-            if (result instanceof BluetoothGattCharacteristic) {
-                BluetoothGattCharacteristic c = (BluetoothGattCharacteristic) result;
-                Log.v(TAG, "VALUE=" + Arrays.toString(c.getValue()));
-            }
-        } else {
-            //NoOp
+        Log.v(TAG, "onPostExecute returned with object " + result);
+        if (result instanceof BluetoothGattCharacteristic) {
+            BluetoothGattCharacteristic c = (BluetoothGattCharacteristic) result;
+            Log.v(TAG, "VALUE=" + Arrays.toString(c.getValue()));
         }
     }
 
-    // //////////////////////
+    @Override
+    public void onChange(BluetoothCommandManager command, BluetoothGattCharacteristic
+            characteristic) {
+
+//        Log.v(TAG, "onChange:" + characteristic.getUuid() + "value"+ Arrays.toString
+//                (characteristic.getValue()));
+    }
+// //////////////////////
     // Methods
 
     public boolean setEyeColor(int color) {
@@ -184,31 +185,87 @@ public class DashController implements BluetoothCommandManager.CommandCallback {
     }
 
     public boolean callNotifier() {
-        final UUID serviceUUID = UUID.fromString(DashProtocolProperties.BISCUIT_SERVICE_UUID);
-        final UUID characteristic = UUID.fromString(DashProtocolProperties.NOTIFY_CHARACTERISTIC);
-
-        BluetoothGatt gatt = BluetoothCommandManager.getInstance().getGatt();
-        if (gatt == null) {
-            Log.e(TAG, "callNotifier: bluetooth not ready.");
-            BluetoothCommandManager.getInstance().setOnReadyListener(new BluetoothCommandManager.OnReadyListener() {
-
-                @Override
-                public void onReady(BluetoothCommandManager cmd) {
-                    BluetoothGatt gatt = cmd.getGatt();
-                    if (gatt == null) return;
-                    BluetoothGattCharacteristic c = gatt.getService(serviceUUID).getCharacteristic(characteristic);
-                    gatt.setCharacteristicNotification(c,true);
-                    //write descriptor characteristic
-                    BluetoothCommandManager.getInstance().run(new BluetoothCommandManager.ReadCharacteristic(c));
-                }
-            });
-            return false;
-        }
-        BluetoothGattCharacteristic c = gatt.getService(serviceUUID).getCharacteristic(characteristic);
-        BluetoothCommandManager.getInstance().run(new BluetoothCommandManager.WriteCharacteristic(c));
-
-        BluetoothCommandManager.getInstance().run(new BluetoothCommandManager.ReadCharacteristic(c));
+        //extra setup
         return true;
+    }
+
+    public void reset() {
+        byte command = TYPE_ALL_STOP;
+        byte[] data = new byte[14];
+        data[0] = command;
+    }
+
+    public void setThrottleLeft(int throttle) {
+        leftThrottle = throttle;
+        sendMotor(leftThrottle,rightThrottle);
+    }
+
+    public void setThrottleRight(int throttle) {
+        rightThrottle = throttle;
+        sendMotor(leftThrottle,rightThrottle);
+    }
+
+    private float sanitze(float value, float min, float max) {
+        value = Math.max(min, value);
+        value = Math.min(max, value);
+        return value;
+    }
+
+    private void sendMotor(float leftMotor, float rightMotor) {
+        leftMotor = sanitze(leftMotor, -255, 255);
+        rightMotor = sanitze(rightMotor, -255,255);
+
+        final int mtrA1, mtrA2, mtrB1, mtrB2;
+
+        if (leftMotor >= 0) {
+            mtrA1 = Math.round(leftMotor);
+            mtrA2 = 0;
+        } else {
+            mtrA1 = 0;
+            mtrA2 = Math.round(-leftMotor);
+        }
+
+        if (rightMotor >= 0) {
+            mtrB1 = Math.round(rightMotor);
+            mtrB2 = 0;
+        } else {
+            mtrB1 = 0;
+            mtrB2 = Math.round(-rightMotor);
+        }
+        BluetoothCommandManager.getInstance().run(new BluetoothCommandManager.WriteCharacteristic(200) {
+
+
+            @Override
+            protected BluetoothGattCharacteristic getObject(BluetoothGatt gatt) {
+
+                /**
+                 * bitwise operation to join
+                 *     #define CLAMP(x, low, high)  (((x) > (high)) ? (high) : (((x) < (low)) ? (low) : (x)))
+                 *         // [type "2" -1]  [mtrA1 - 0-255 - 1] [mtrA2 - 0-255 - 1] [mtrB1 - 0-255 - 1] [mtrB2 - 0-255 - 1]
+
+
+                 */
+                byte[] data = new byte[20];
+                byte command = TYPE_DIRECT_DRIVE;
+                int i = 15;
+                data[i++] = command;
+                data[i++] = (byte)mtrA1;
+                data[i++] = (byte)mtrA2;
+                data[i++] = (byte)mtrB1;
+                data[i] = (byte)mtrB2;
+                //mtrA1 mtrA2
+                //mtrB1 mtrB2
+                //send data
+                writeWithoutResponseCharacteristic.setValue(data);
+                return writeWithoutResponseCharacteristic;
+            }
+        });
+        BluetoothCommandManager.getInstance().run(new BluetoothCommandManager.ReadCharacteristic(300) {
+            @Override
+            protected BluetoothGattCharacteristic getObject(BluetoothGatt gatt) {
+                return writeWithoutResponseCharacteristic;
+            }
+        });
     }
 
 
