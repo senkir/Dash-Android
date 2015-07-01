@@ -13,11 +13,9 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ProgressBar;
 import butterknife.ButterKnife;
 import butterknife.InjectView;
 import com.enyeinteractive.dashport.bluetooth.BluetoothScanner;
-import com.enyeinteractive.dashport.bluetooth.DashController;
 import com.enyeinteractive.dashport.bluetooth.adapter.BTListAdapter;
 
 /**
@@ -73,7 +71,7 @@ public class BTConnectFragment extends Fragment {
         scanner.scanLE(new BluetoothScanner.ScanFinishListener() {
             @Override
             public void onScanFinished(BluetoothScanner scanner) {
-                progressBar.setVisibility(View.GONE);
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
                 initAdapter(scanner.getDevices());
             }
 

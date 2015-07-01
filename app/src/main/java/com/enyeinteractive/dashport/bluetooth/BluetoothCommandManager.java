@@ -13,8 +13,6 @@ import android.util.Log;
 
 import java.util.ArrayDeque;
 import java.util.Queue;
-import java.util.Set;
-import java.util.UUID;
 
 /**
  * @author tcastillo
@@ -34,9 +32,19 @@ public class BluetoothCommandManager {
     private CommandWrapper<?> currentCommand;
     private InternalCallback internalCallback;
     private OnReadyListener onReadyListener;
+    private OnConnectionStateChangeListener onConnectionStateChangeListener;
 
     @IntDef({READ,WRITE,DESC,CONNECT,DISCONNECT})
-    @interface Type{}
+    public @interface CommandType {}
+
+
+    public static final int DISCONNECTED = 0;
+    public static final int CONNECTING = 1;
+    public static final int DISCOVERING = 2;
+    public static final int CONNECTED = 3;
+
+    @IntDef({DISCONNECTED,CONNECTING,DISCOVERING,CONNECTED})
+    public @interface ConnectionState {}
 
     private BluetoothGatt gatt;
     // //////////////////////
@@ -73,6 +81,9 @@ public class BluetoothCommandManager {
         this.onReadyListener = onReadyListener;
     }
 
+    public void setConnectionStateChangeListener(OnConnectionStateChangeListener listener) {
+        this.onConnectionStateChangeListener = listener;
+    }
     // //////////////////////
     // Methods from SuperClass/Interfaces
 
@@ -90,6 +101,8 @@ public class BluetoothCommandManager {
         if (currentCommand == null && ready) executeNext();
     }
 
+    boolean wait;
+
     public synchronized boolean executeNext() {
         /**
          * http://stackoverflow.com/questions/17910322/android-ble-api-gatt-notification-not-received
@@ -97,8 +110,9 @@ public class BluetoothCommandManager {
          * before read characteristic calls
          *
          */
-        if (currentCommand != null || commands.isEmpty()) return false;
+        if ((wait &&currentCommand != null) || commands.isEmpty()) return false;
         currentCommand = commands.poll();
+        Log.v(TAG, "executeNext: command=" + currentCommand);
         if (!currentCommand.execute(gatt)) {
             Log.w(TAG, "execute command failed.");
             currentCommand = null;
@@ -120,8 +134,7 @@ public class BluetoothCommandManager {
     // Inner and Anonymous Classes
     public interface CommandCallback {
         void onPostExecute(BluetoothCommandManager cmd, BluetoothGatt gatt,
-                                  @Type int type, Object result, long id);
-
+                                  @CommandType int type, Object result, long id);
         void onChange(BluetoothCommandManager command, BluetoothGattCharacteristic characteristic);
     }
 
@@ -142,6 +155,23 @@ public class BluetoothCommandManager {
             if (BluetoothGatt.GATT_FAILURE == status || BluetoothGatt.STATE_DISCONNECTED == newState) {
                 Log.w(TAG, String.format("failure state.  status = %s state=%s", status, newState));
                 ready = false;
+            }
+            if (onConnectionStateChangeListener != null) {
+                @ConnectionState int moveToState = DISCONNECTED;
+                switch(newState) {
+                    case BluetoothGatt.STATE_CONNECTING:
+                        moveToState = CONNECTING;
+                        break;
+                    case BluetoothGatt.STATE_CONNECTED:
+                        moveToState = CONNECTED;
+                        break;
+                    case BluetoothGatt.STATE_DISCONNECTED:
+                        moveToState = DISCONNECTED;
+                        break;
+                    default:
+                        //no-op
+                }
+                onConnectionStateChangeListener.onStateChange(moveToState);
             }
             currentCommand = null;
         }
@@ -191,10 +221,13 @@ public class BluetoothCommandManager {
             onPostBTCommand(DESC, descriptor);
         }
 
-        private void onPostBTCommand(@Type int type, @Nullable Object result) {
+        private void onPostBTCommand(@CommandType int type, @Nullable Object result) {
             CommandWrapper<?> cmd = currentCommand;
             currentCommand = null;
-            callback.onPostExecute(BluetoothCommandManager.this, gatt, DESC, result, cmd.id);
+            if (cmd != null) {
+                Log.v(TAG, "onPostBTCommand: cmd=" + cmd.toString());
+            }
+            callback.onPostExecute(BluetoothCommandManager.this, gatt, type, result, cmd != null? cmd.id: -1);
         }
     }
 
@@ -223,6 +256,13 @@ public class BluetoothCommandManager {
         }
 
         @Override
+        public String toString() {
+            StringBuilder builder =new StringBuilder("ReadCharacteristic ");
+            builder.append(super.toString());
+            return builder.toString();
+        }
+
+        @Override
         public boolean execute(BluetoothGatt gatt) {
             return gatt.readCharacteristic(getObject(gatt));
         }
@@ -235,6 +275,12 @@ public class BluetoothCommandManager {
         }
 
         @Override
+        public String toString() {
+            StringBuilder builder =new StringBuilder("ReadDescriptor ");
+            builder.append(super.toString());
+            return builder.toString();
+        }
+        @Override
         public boolean execute(BluetoothGatt gatt) {
             return gatt.readDescriptor(getObject(gatt));
         }
@@ -246,6 +292,12 @@ public class BluetoothCommandManager {
             super(id);
         }
 
+        @Override
+        public String toString() {
+            StringBuilder builder =new StringBuilder("WriteCharacteristic ");
+            builder.append(super.toString());
+            return builder.toString();
+        }
         @Override
         public boolean execute(BluetoothGatt gatt) {
             return gatt.writeCharacteristic(getObject(gatt));
@@ -260,9 +312,20 @@ public class BluetoothCommandManager {
         }
 
         @Override
+        public String toString() {
+            StringBuilder builder =new StringBuilder("WriteDescriptor ");
+            builder.append(super.toString());
+            return builder.toString();
+        }
+
+        @Override
         public boolean execute(BluetoothGatt gatt) {
             return gatt.writeDescriptor(getObject(gatt));
         }
 
+    }
+
+    public interface OnConnectionStateChangeListener {
+        public int onStateChange(@ConnectionState int state);
     }
 }

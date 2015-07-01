@@ -15,9 +15,9 @@ public class DriveActivity extends ActionBarActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_drive);
         Fragment f = getSupportFragmentManager().findFragmentById(R.id.fragment);
-        if (f instanceof MainActivityFragment) {
+        if (f instanceof DashControllerFragment) {
             BluetoothDevice device = getIntent().getParcelableExtra("device");
-            ((MainActivityFragment) f).setBluetoothDevice(device);
+            ((DashControllerFragment) f).setBluetoothDevice(device);
         }
     }
 
