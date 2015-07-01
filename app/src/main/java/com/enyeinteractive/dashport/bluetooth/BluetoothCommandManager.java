@@ -101,8 +101,6 @@ public class BluetoothCommandManager {
         if (currentCommand == null && ready) executeNext();
     }
 
-    boolean wait;
-
     public synchronized boolean executeNext() {
         /**
          * http://stackoverflow.com/questions/17910322/android-ble-api-gatt-notification-not-received
@@ -110,7 +108,7 @@ public class BluetoothCommandManager {
          * before read characteristic calls
          *
          */
-        if ((wait &&currentCommand != null) || commands.isEmpty()) return false;
+        if (commands.isEmpty()) return false;
         currentCommand = commands.poll();
         Log.v(TAG, "executeNext: command=" + currentCommand);
         if (!currentCommand.execute(gatt)) {
