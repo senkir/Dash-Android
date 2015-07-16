@@ -4,6 +4,9 @@ import junit.framework.TestCase;
 
 import java.nio.ByteBuffer;
 
+import static org.hamcrest.core.Is.is;
+import static org.hamcrest.core.IsEqual.equalTo;
+
 /**
  * @author tcastillo
  *         Date: 6/30/15
@@ -18,5 +21,7 @@ public class DRSignalPacketTest extends TestCase {
         data[2] = (byte)100;
         data[3] = (byte)100;
 
+        DRSignalPacket packet = DRSignalPacket.fromData(data);
+        org.junit.Assert.assertThat(packet.command, is(equalTo('4')));
     }
 }
