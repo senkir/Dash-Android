@@ -11,6 +11,9 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import butterknife.ButterKnife;
@@ -54,6 +57,12 @@ public class BTConnectFragment extends Fragment {
     // //////////////////////
     // Methods from SuperClass/Interfaces
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setHasOptionsMenu(true);
+    }
+
     @Nullable
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle
@@ -68,19 +77,23 @@ public class BTConnectFragment extends Fragment {
         list.setLayoutManager(new LinearLayoutManager(getActivity()));
         progressBar.setVisibility(View.VISIBLE);
         scanner = new BluetoothScanner();
-        scanner.scanLE(new BluetoothScanner.ScanFinishListener() {
-            @Override
-            public void onScanFinished(BluetoothScanner scanner) {
-                if (progressBar != null) progressBar.setVisibility(View.GONE);
-                initAdapter(scanner.getDevices());
-            }
+        scan();
 
-            @Override
-            public void onScanResult(BluetoothScanner scanner, BluetoothDevice device, int rssi) {
-                //TODO: ANDROID IMPL
-            }
-        });
+    }
 
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        new MenuInflater(getActivity()).inflate(R.menu.menu_main, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+        if (id == R.id.action_refresh) {
+            scan();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -91,6 +104,22 @@ public class BTConnectFragment extends Fragment {
 
     // //////////////////////
     // Methods
+
+    private void scan() {
+        scanner.scanLE(new BluetoothScanner.ScanFinishListener() {
+            @Override
+            public void onScanFinished(BluetoothScanner scanner) {
+                if (progressBar != null) progressBar.setVisibility(View.GONE);
+                initAdapter(scanner.getDevices());
+            }
+
+            @Override
+            public void onScanResult(BluetoothScanner scanner, BluetoothDevice device, int rssi) {
+                //do nothing
+            }
+        });
+    }
+
     public void initAdapter(final ArrayMap<BluetoothDevice, Integer> devices) {
         Log.v(TAG, "initAdapter called with device count=" + devices.size());
         RecyclerView.Adapter adapter = new BTListAdapter(devices, new View.OnClickListener() {
