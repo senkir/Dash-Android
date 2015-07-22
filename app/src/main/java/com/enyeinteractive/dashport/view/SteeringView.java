@@ -5,6 +5,7 @@ import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
 import android.view.View;
+import com.enyeinteractive.dashport.util.GeometryUtil;
 
 /**
  * @author tcastillo
@@ -65,27 +66,39 @@ public class SteeringView extends View {
     public interface OnSteerActionListener {
         void onCancel(SteeringView view);
         void onSteerActionStarted();
-        void onBearingChange(float direction, int magnitude);
+        void onBearingChange(double direction, double magnitude);
     }
 
-    private static class DriveMotionListener implements OnGenericMotionListener {
-        private MotionEvent.PointerCoords coords;
+    private class DriveMotionListener implements OnGenericMotionListener {
+        private MotionEvent.PointerCoords origin;
+        private MotionEvent.PointerCoords location = new MotionEvent.PointerCoords();
 
         @Override
         public boolean onGenericMotion(View view, MotionEvent motionEvent) {
             int action = motionEvent.getAction();
             if (action == MotionEvent.ACTION_DOWN) {
                 Log.v(TAG, "motion event started");
-                coords = new MotionEvent.PointerCoords();
-                motionEvent.getPointerCoords(0,coords);
-                if ()
+                origin = new MotionEvent.PointerCoords();
+                motionEvent.getPointerCoords(0, origin);
+//                if ()
             } else if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
                 Log.v(TAG, "motion event ended");
-                coords = null;
+                origin = null;
             } else if (action == MotionEvent.ACTION_MOVE) {
-                motionEvent.
+                motionEvent.getPointerCoords(0, location);
+                parseBearingAndDirection();
             }
             return false;
+        }
+
+        private void parseBearingAndDirection() {
+            //distance between 2 points
+            //angle between 2 points
+            double distance = GeometryUtil.distance(origin, location);
+            double angle = GeometryUtil.angle(origin, location);
+            if (listener != null) {
+                listener.onBearingChange(angle, distance);
+            }
         }
     }
 }

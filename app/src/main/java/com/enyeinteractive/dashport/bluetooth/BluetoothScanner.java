@@ -72,8 +72,8 @@ public class BluetoothScanner {
     // //////////////////////
     // Inner and Anonymous Classes
     public interface ScanFinishListener {
-        public void onScanFinished(BluetoothScanner scanner);
-        public void onScanResult(BluetoothScanner scanner, BluetoothDevice device, int rssi);
+        void onScanFinished(BluetoothScanner scanner);
+        void onScanResult(BluetoothScanner scanner, BluetoothDevice device, int rssi);
     }
 
     private class DashScanCallback extends ScanCallback {
