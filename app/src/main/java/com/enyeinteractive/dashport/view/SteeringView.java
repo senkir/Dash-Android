@@ -1,6 +1,9 @@
 package com.enyeinteractive.dashport.view;
 
 import android.content.Context;
+import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.util.AttributeSet;
 import android.util.Log;
 import android.view.MotionEvent;
@@ -17,11 +20,14 @@ public class SteeringView extends View {
     // //////////////////////
     // Constants
     private static final String TAG = SteeringView.class.getSimpleName();
+    private static final boolean DEBUG = true;
 
     // //////////////////////
     // Fields
 
     private OnSteerActionListener listener;
+    private Paint startColor;
+    private Paint endColor;
 
     // //////////////////////
     // Constructors
@@ -29,6 +35,13 @@ public class SteeringView extends View {
     public SteeringView(Context context) {
         super(context);
         initTouchListener();
+        if (DEBUG) {
+            startColor = new Paint();
+            startColor.setColor(Color.BLACK);
+            endColor = new Paint();
+            endColor.setColor(Color.GREEN);
+        }
+
     }
 
     public SteeringView(Context context, AttributeSet attrs) {
@@ -53,6 +66,16 @@ public class SteeringView extends View {
     }
     // //////////////////////
     // Methods from SuperClass/Interfaces
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        if (DEBUG) {
+            //draw circles
+            if ()
+            canvas.drawCircle();
+        }
+    }
 
     // //////////////////////
     // Methods
@@ -80,10 +103,11 @@ public class SteeringView extends View {
                 Log.v(TAG, "motion event started");
                 origin = new MotionEvent.PointerCoords();
                 motionEvent.getPointerCoords(0, origin);
-//                if ()
+                if (listener != null) listener.onSteerActionStarted();
             } else if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
                 Log.v(TAG, "motion event ended");
                 origin = null;
+                if (listener != null) listener.onCancel(SteeringView.this);
             } else if (action == MotionEvent.ACTION_MOVE) {
                 motionEvent.getPointerCoords(0, location);
                 parseBearingAndDirection();
