@@ -28,6 +28,7 @@ public class SteeringView extends View {
     private OnSteerActionListener listener;
     private Paint startColor;
     private Paint endColor;
+    private DriveMotionListener innerMotionListener;
 
     // //////////////////////
     // Constructors
@@ -72,9 +73,27 @@ public class SteeringView extends View {
         super.onDraw(canvas);
         if (DEBUG) {
             //draw circles
-            if ()
-            canvas.drawCircle();
+            if (hasStart()) {
+                //draw circles
+                canvas.drawCircle(innerMotionListener.origin.x,
+                        innerMotionListener.origin.y,
+                        10,
+                        startColor);
+                if (innerMotionListener.location != null) {
+                    canvas.drawCircle(innerMotionListener.location.x,
+                            innerMotionListener.location.y,
+                            10,
+                            endColor);
+                }
+                //note math results
+                canvas.drawText("Distance: " + innerMotionListener.distance, 0,0, endColor);
+                canvas.drawText("Angle: " + innerMotionListener.angle, 0,10, endColor);
+            }
         }
+    }
+
+    private boolean hasStart() {
+        return innerMotionListener.origin != null;
     }
 
     // //////////////////////
@@ -82,7 +101,8 @@ public class SteeringView extends View {
 
 
     private void initTouchListener() {
-        setOnGenericMotionListener(new DriveMotionListener());
+        innerMotionListener = new DriveMotionListener();
+        setOnGenericMotionListener(innerMotionListener);
     }
     // //////////////////////
     // Inner and Anonymous Classes
@@ -95,6 +115,8 @@ public class SteeringView extends View {
     private class DriveMotionListener implements OnGenericMotionListener {
         private MotionEvent.PointerCoords origin;
         private MotionEvent.PointerCoords location = new MotionEvent.PointerCoords();
+        private double distance;
+        private double angle;
 
         @Override
         public boolean onGenericMotion(View view, MotionEvent motionEvent) {
@@ -107,6 +129,8 @@ public class SteeringView extends View {
             } else if (action == MotionEvent.ACTION_CANCEL || action == MotionEvent.ACTION_UP) {
                 Log.v(TAG, "motion event ended");
                 origin = null;
+                distance = 0;
+                angle = 0;
                 if (listener != null) listener.onCancel(SteeringView.this);
             } else if (action == MotionEvent.ACTION_MOVE) {
                 motionEvent.getPointerCoords(0, location);
@@ -118,8 +142,8 @@ public class SteeringView extends View {
         private void parseBearingAndDirection() {
             //distance between 2 points
             //angle between 2 points
-            double distance = GeometryUtil.distance(origin, location);
-            double angle = GeometryUtil.angle(origin, location);
+            distance = GeometryUtil.distance(origin, location);
+            angle = GeometryUtil.angle(origin, location);
             if (listener != null) {
                 listener.onBearingChange(angle, distance);
             }

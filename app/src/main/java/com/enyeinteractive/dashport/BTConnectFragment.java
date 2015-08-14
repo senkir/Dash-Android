@@ -101,9 +101,11 @@ public class BTConnectFragment extends Fragment {
             builder.setMessage("Do you want to mock a connected bot? (will immediately skip scanning phase)");
             builder.setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    //TODO: ANDROID IMPL
-                    //want to pop activity with mock flag enabled here
+                public void
+                onClick(DialogInterface dialogInterface, int i) {
+                    Intent intent = new Intent(getActivity(), DriveActivity.class);
+                    intent.putExtra("is_mocked", true);
+                    startActivity(intent);
                 }
             });
             builder.setNegativeButton(android.R.string.cancel, null);

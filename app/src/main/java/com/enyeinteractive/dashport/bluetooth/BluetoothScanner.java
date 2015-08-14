@@ -53,6 +53,10 @@ public class BluetoothScanner {
     // Methods
 
     public void scanLE(@NonNull final ScanFinishListener listener) {
+        if (BluetoothAdapter.getDefaultAdapter() == null) {
+            listener.onScanFinished(BluetoothScanner.this);
+            return;
+        }
         BluetoothLeScanner leScanner = BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner();
         final DashScanCallback callback = new DashScanCallback();
         leScanner.startScan(callback);
