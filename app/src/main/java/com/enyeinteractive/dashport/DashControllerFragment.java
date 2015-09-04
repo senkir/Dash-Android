@@ -74,7 +74,7 @@ public class DashControllerFragment extends Fragment {
     @Override
     public View
     onCreateView(LayoutInflater inflater, ViewGroup container,
-                             Bundle savedInstanceState) {
+                 Bundle savedInstanceState) {
         return inflater.inflate(R.layout.fragment_main, container, false);
     }
 
@@ -176,7 +176,7 @@ public class DashControllerFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        ctrl.close();
+        if (ctrl != null) ctrl.close();
         ctrl = null;
     }
 

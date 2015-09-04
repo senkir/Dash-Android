@@ -62,13 +62,10 @@ public class BluetoothScanner {
         leScanner.startScan(callback);
         handler = new Handler();
         this.listener = listener;
-        finish = new Runnable() {
-            @Override
-            public void run() {
-                BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner().stopScan(callback);
-                devices.putAll((SimpleArrayMap<? extends BluetoothDevice, ? extends Integer>) callback.devices);
-                listener.onScanFinished(BluetoothScanner.this);
-            }
+        finish = () -> {
+            BluetoothAdapter.getDefaultAdapter().getBluetoothLeScanner().stopScan(callback);
+            devices.putAll((SimpleArrayMap<? extends BluetoothDevice, ? extends Integer>) callback.devices);
+            listener.onScanFinished(BluetoothScanner.this);
         };
         handler.postDelayed(finish, 10000);
     }
