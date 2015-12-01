@@ -1,0 +1,212 @@
+{
+    "_debugApk": {
+        "com.android.support:appcompat-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:design": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:recyclerview-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:support-annotations": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.github.QuadFlask:colorpicker": {
+            "locked": "0.0.9",
+            "requested": "0.0.9"
+        },
+        "com.jakewharton:butterknife": {
+            "locked": "6.1.0",
+            "requested": "6.1.0"
+        },
+        "io.reactivex:rxandroid": {
+            "locked": "1.0.1",
+            "requested": "1.0.1"
+        },
+        "io.reactivex:rxjava": {
+            "locked": "1.0.16",
+            "requested": "1.0.16"
+        }
+    },
+    "_debugCompile": {
+        "com.android.support:appcompat-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:design": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:recyclerview-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:support-annotations": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.github.QuadFlask:colorpicker": {
+            "locked": "0.0.9",
+            "requested": "0.0.9"
+        },
+        "com.jakewharton:butterknife": {
+            "locked": "6.1.0",
+            "requested": "6.1.0"
+        },
+        "io.reactivex:rxandroid": {
+            "locked": "1.0.1",
+            "requested": "1.0.1"
+        },
+        "io.reactivex:rxjava": {
+            "locked": "1.0.16",
+            "requested": "1.0.16"
+        }
+    },
+    "_debugUnitTestApk": {
+        "junit:junit": {
+            "locked": "4.12",
+            "requested": "4.12"
+        }
+    },
+    "_debugUnitTestCompile": {
+        "junit:junit": {
+            "locked": "4.12",
+            "requested": "4.12"
+        }
+    },
+    "_releaseApk": {
+        "com.android.support:appcompat-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:design": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:recyclerview-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:support-annotations": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.github.QuadFlask:colorpicker": {
+            "locked": "0.0.9",
+            "requested": "0.0.9"
+        },
+        "com.jakewharton:butterknife": {
+            "locked": "6.1.0",
+            "requested": "6.1.0"
+        },
+        "io.reactivex:rxandroid": {
+            "locked": "1.0.1",
+            "requested": "1.0.1"
+        },
+        "io.reactivex:rxjava": {
+            "locked": "1.0.16",
+            "requested": "1.0.16"
+        }
+    },
+    "_releaseCompile": {
+        "com.android.support:appcompat-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:design": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:recyclerview-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:support-annotations": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.github.QuadFlask:colorpicker": {
+            "locked": "0.0.9",
+            "requested": "0.0.9"
+        },
+        "com.jakewharton:butterknife": {
+            "locked": "6.1.0",
+            "requested": "6.1.0"
+        },
+        "io.reactivex:rxandroid": {
+            "locked": "1.0.1",
+            "requested": "1.0.1"
+        },
+        "io.reactivex:rxjava": {
+            "locked": "1.0.16",
+            "requested": "1.0.16"
+        }
+    },
+    "_releaseUnitTestApk": {
+        "junit:junit": {
+            "locked": "4.12",
+            "requested": "4.12"
+        }
+    },
+    "_releaseUnitTestCompile": {
+        "junit:junit": {
+            "locked": "4.12",
+            "requested": "4.12"
+        }
+    },
+    "androidJacocoAgent": {
+        "org.jacoco:org.jacoco.agent": {
+            "locked": "0.7.4.201502262128"
+        }
+    },
+    "androidJacocoAnt": {
+        "org.jacoco:org.jacoco.ant": {
+            "locked": "0.7.4.201502262128"
+        }
+    },
+    "compile": {
+        "com.android.support:appcompat-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:design": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:recyclerview-v7": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.android.support:support-annotations": {
+            "locked": "22.2.0",
+            "requested": "22.2.0"
+        },
+        "com.github.QuadFlask:colorpicker": {
+            "locked": "0.0.9",
+            "requested": "0.0.9"
+        },
+        "com.jakewharton:butterknife": {
+            "locked": "6.1.0",
+            "requested": "6.1.0"
+        },
+        "io.reactivex:rxandroid": {
+            "locked": "1.0.1",
+            "requested": "1.0.1"
+        },
+        "io.reactivex:rxjava": {
+            "locked": "1.0.16",
+            "requested": "1.0.16"
+        }
+    },
+    "testCompile": {
+        "junit:junit": {
+            "locked": "4.12",
+            "requested": "4.12"
+        }
+    }
+}

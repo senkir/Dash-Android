@@ -1,15 +1,13 @@
 apply plugin: 'com.android.application'
-apply plugin: 'com.ofg.uptodate'
-apply plugin: 'me.tatarka.retrolambda'
 
 android {
-    compileSdkVersion 22
-    buildToolsVersion "22.0.1"
+    compileSdkVersion 23
+    buildToolsVersion "23.0.1"
 
     defaultConfig {
         applicationId "com.enyeinteractive.dashport"
-        minSdkVersion 21
-        targetSdkVersion 22
+        minSdkVersion 22
+        targetSdkVersion 23
         versionCode 1
         versionName "1.0"
     }
@@ -20,18 +18,24 @@ android {
         }
     }
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
     }
 }
 
+apply plugin: 'nebula.dependency-lock'
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
-    compile 'com.android.support:appcompat-v7:22.2.0'
-    compile 'com.android.support:recyclerview-v7:22.2.0'
-    compile 'com.android.support:design:22.2.0'
-    compile 'com.android.support:support-annotations:22.2.0'
+    compile 'com.android.support:appcompat-v7:23.1.1'
+    compile 'com.android.support:recyclerview-v7:23.1.1'
+    compile 'com.android.support:design:23.1.1'
+    compile 'com.android.support:support-annotations:23.1.1'
     compile 'com.jakewharton:butterknife:6.1.0'
     compile 'com.github.QuadFlask:colorpicker:0.0.9'
+    compile 'io.reactivex:rxandroid:1.0.1'
+// Because RxAndroid releases are few and far between, it is recommended you also
+// explicitly depend on RxJava's latest version for bug fixes and new features.
+    compile 'io.reactivex:rxjava:1.0.16'
     testCompile 'junit:junit:4.12'
 }
